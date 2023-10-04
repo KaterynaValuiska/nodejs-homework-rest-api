@@ -1,28 +1,29 @@
 import Contact from "../models/contact.js";
 import { HttpError } from "../helpers/HttpError.js";
-import Joi from "joi";
+// import Joi from "joi";
 import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
 
-const controlPost = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  phone: Joi.string().required(),
-  favorite: Joi.boolean(),
-});
+// const controlPost = Joi.object({
+//   name: Joi.string().required(),
+//   email: Joi.string().required(),
+//   phone: Joi.string().required(),
+//   favorite: Joi.boolean(),
+// });
 
-const controlPut = Joi.object({
-  name: Joi.string(),
-  email: Joi.string(),
-  phone: Joi.string(),
-  favorite: Joi.boolean(),
-});
+// const controlPut = Joi.object({
+//   name: Joi.string(),
+//   email: Joi.string(),
+//   phone: Joi.string(),
+//   favorite: Joi.boolean(),
+// });
 
-const controlPatch = Joi.object({
-  favorite: Joi.boolean().required(),
-});
+// const controlPatch = Joi.object({
+//   favorite: Joi.boolean().required(),
+// });
 
 const getAll = async (req, res) => {
   const result = await Contact.find();
+  console.log(result);
   res.json(result);
 };
 
@@ -38,10 +39,6 @@ const getById = async (req, res) => {
 };
 
 const postAddContact = async (req, res) => {
-  const { error } = controlPost.validate(req.body);
-  if (error) {
-    throw HttpError(400, error.message);
-  }
   const result = await Contact.create(req.body);
   res.status(201).json(result);
 };
@@ -54,13 +51,10 @@ const deleteById = async (req, res) => {
   }
   res.json({ message: "contact deleted" });
 };
+
 const putUpdateById = async (req, res) => {
   if (!req.body) {
     throw HttpError(400, "missing fields");
-  }
-  const { error } = controlPut.validate(req.body);
-  if (error) {
-    throw HttpError(400, error.message);
   }
 
   const { id } = req.params;
@@ -73,10 +67,6 @@ const putUpdateById = async (req, res) => {
 
 const patchUpdateById = async (req, res) => {
   if (!req.body) {
-    throw HttpError(400, "missing field favorite");
-  }
-  const { error } = controlPatch.validate(req.body);
-  if (error) {
     throw HttpError(400, "missing field favorite");
   }
 
