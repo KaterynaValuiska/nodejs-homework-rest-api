@@ -1,4 +1,4 @@
-import Contact from "../models/contact.js";
+import { Contact } from "../models/contact.js";
 import { HttpError } from "../helpers/HttpError.js";
 // import Joi from "joi";
 import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
@@ -22,8 +22,26 @@ import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
 // });
 
 const getAll = async (req, res) => {
-  const result = await Contact.find();
-  console.log(result);
+  const { _id: owner } = req.user;
+  const {
+    page = 1,
+    limit = 20,
+    favorite: reqFavorite = null,
+    phone: reqPhone = null,
+  } = req.query;
+  const skip = (page - 1) * limit;
+  const favorite = reqFavorite === null ? { $exists: true } : reqFavorite;
+  const phone = reqPhone === null ? { $exists: true } : reqPhone;
+
+  const result = await Contact.find(
+    { owner, favorite, phone },
+    "-createdAt -updatedAt",
+    {
+      skip,
+      limit,
+    }
+  ).populate("owner", "name email");
+
   res.json(result);
 };
 
@@ -39,7 +57,8 @@ const getById = async (req, res) => {
 };
 
 const postAddContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 

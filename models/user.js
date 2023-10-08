@@ -2,7 +2,10 @@ import { Schema, model } from "mongoose";
 import Joi from "joi";
 import { handleMongooseError } from "../helpers/handleMongooseError.js";
 
-const emailRegexp = /^w+([.-]?w+)*@w+([.-]?w+)*(.w{2,3})+$/;
+const emailRegexp =
+  /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
+
+const subscriptionList = ["starter", "pro", "business"];
 const userSchema = new Schema(
   {
     name: {
@@ -17,7 +20,18 @@ const userSchema = new Schema(
     email: {
       type: String,
       match: emailRegexp,
+      unique: true,
       required: [true, "Email is required"],
+    },
+    subscription: {
+      type: String,
+      required: true,
+      enum: subscriptionList,
+      default: "starter",
+    },
+    token: {
+      type: String,
+      default: "",
     },
   },
   { versionKey: false, timestamps: true }
@@ -36,11 +50,18 @@ const loginSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const subscriptionSchema = Joi.object({
+  subscription: Joi.string()
+    .required()
+    .validate(...subscriptionList),
+});
+
 const schemas = {
   registerSchema,
   loginSchema,
+  subscriptionSchema,
 };
 
 const User = model("user", userSchema);
 
-export default { User, registerSchema };
+export { User, schemas };
