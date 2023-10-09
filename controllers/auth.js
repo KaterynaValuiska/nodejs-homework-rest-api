@@ -65,11 +65,10 @@ const logout = async (req, res) => {
 };
 
 const patchUpdateSubscription = async (req, res) => {
-  if (!req.body) {
-    throw HttpError(400, "missing field subscription");
-  }
   const { _id } = req.user;
-  const result = await User.findByIdAndUpdate(_id, req.body, { new: true });
+  const result = await User.findByIdAndUpdate(_id, {
+    subscription: req.body.subscription,
+  });
   res.json(result);
 };
 

@@ -1,25 +1,6 @@
 import { Contact } from "../models/contact.js";
 import { HttpError } from "../helpers/HttpError.js";
-// import Joi from "joi";
 import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
-
-// const controlPost = Joi.object({
-//   name: Joi.string().required(),
-//   email: Joi.string().required(),
-//   phone: Joi.string().required(),
-//   favorite: Joi.boolean(),
-// });
-
-// const controlPut = Joi.object({
-//   name: Joi.string(),
-//   email: Joi.string(),
-//   phone: Joi.string(),
-//   favorite: Joi.boolean(),
-// });
-
-// const controlPatch = Joi.object({
-//   favorite: Joi.boolean().required(),
-// });
 
 const getAll = async (req, res) => {
   const { _id: owner } = req.user;

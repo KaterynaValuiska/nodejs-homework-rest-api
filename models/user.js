@@ -51,9 +51,7 @@ const loginSchema = Joi.object({
 });
 
 const subscriptionSchema = Joi.object({
-  subscription: Joi.string()
-    .required()
-    .validate(...subscriptionList),
+  subscription: Joi.string().valid(...subscriptionList),
 });
 
 const schemas = {
