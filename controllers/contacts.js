@@ -1,35 +1,36 @@
-import Contact from "../models/contact.js";
+import { Contact } from "../models/contact.js";
 import { HttpError } from "../helpers/HttpError.js";
-import Joi from "joi";
 import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
 
-const controlPost = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  phone: Joi.string().required(),
-  favorite: Joi.boolean(),
-});
-
-const controlPut = Joi.object({
-  name: Joi.string(),
-  email: Joi.string(),
-  phone: Joi.string(),
-  favorite: Joi.boolean(),
-});
-
-const controlPatch = Joi.object({
-  favorite: Joi.boolean().required(),
-});
-
 const getAll = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const {
+    page = 1,
+    limit = 20,
+    favorite: reqFavorite = null,
+    phone: reqPhone = null,
+  } = req.query;
+  const skip = (page - 1) * limit;
+  const favorite = reqFavorite === null ? { $exists: true } : reqFavorite;
+  const phone = reqPhone === null ? { $exists: true } : reqPhone;
+
+  const result = await Contact.find(
+    { owner, favorite, phone },
+    "-createdAt -updatedAt",
+    {
+      skip,
+      limit,
+    }
+  ).populate("owner", "name email");
+
   res.json(result);
 };
 
 const getById = async (req, res) => {
   const { id } = req.params;
-  // const result = await Contact.findOne({ _id: id }); для будь-якого пошуку
-  const result = await Contact.findById(id);
+  const { _id: owner } = req.user;
+  const result = await Contact.findOne({ _id: id, owner });
+  // const result = await Contact.findById(id);
   console.log(result);
   if (!result) {
     throw HttpError(404, "Sorry. Not found.");
@@ -38,33 +39,32 @@ const getById = async (req, res) => {
 };
 
 const postAddContact = async (req, res) => {
-  const { error } = controlPost.validate(req.body);
-  if (error) {
-    throw HttpError(400, error.message);
-  }
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
 const deleteById = async (req, res) => {
   const { id } = req.params;
-  const result = await Contact.findByIdAndRemove(id);
+  const { _id: owner } = req.user;
+  const result = await Contact.findOneAndRemove({ _id: id, owner });
+  // const result = await Contact.findByIdAndRemove(id);
   if (!result) {
     throw HttpError(404, "Sorry:) Not found.");
   }
   res.json({ message: "contact deleted" });
 };
+
 const putUpdateById = async (req, res) => {
   if (!req.body) {
     throw HttpError(400, "missing fields");
   }
-  const { error } = controlPut.validate(req.body);
-  if (error) {
-    throw HttpError(400, error.message);
-  }
-
+  const { _id: owner } = req.user;
   const { id } = req.params;
-  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  const result = await Contact.findOneAndUpdate({ _id: id, owner }, req.body, {
+    new: true,
+  });
+  // const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
   if (!result) {
     throw HttpError(404, "Sorry. Not found.");
   }
@@ -75,13 +75,12 @@ const patchUpdateById = async (req, res) => {
   if (!req.body) {
     throw HttpError(400, "missing field favorite");
   }
-  const { error } = controlPatch.validate(req.body);
-  if (error) {
-    throw HttpError(400, "missing field favorite");
-  }
-
+  const { _id: owner } = req.user;
   const { id } = req.params;
-  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+  const result = await Contact.findOneAndUpdate({ _id: id, owner }, req.body, {
+    new: true,
+  });
+  // const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
   if (!result) {
     throw HttpError(404, "Sorry. Not found.");
   }

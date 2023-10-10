@@ -1,3 +1,5 @@
+// для роботи з json
+
 import fs from "fs/promises";
 import path from "path";
 import { nanoid } from "nanoid";
