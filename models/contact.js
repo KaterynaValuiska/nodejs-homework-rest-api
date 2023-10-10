@@ -30,6 +30,12 @@ const contactSchema = new Schema(
 );
 
 contactSchema.post("save", handleMongooseError);
+contactSchema.pre("findOneAndUpdate", function (next) {
+  this.getOptions.runValidators = true;
+  next();
+});
+contactSchema.post("findOneAndUpdate", handleMongooseError);
+
 const Contact = model("contact", contactSchema);
 
 const controlPost = Joi.object({

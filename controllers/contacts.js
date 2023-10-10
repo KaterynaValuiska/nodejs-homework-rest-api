@@ -56,9 +56,6 @@ const deleteById = async (req, res) => {
 };
 
 const putUpdateById = async (req, res) => {
-  if (!req.body) {
-    throw HttpError(400, "missing fields");
-  }
   const { _id: owner } = req.user;
   const { id } = req.params;
   const result = await Contact.findOneAndUpdate({ _id: id, owner }, req.body, {
@@ -72,9 +69,6 @@ const putUpdateById = async (req, res) => {
 };
 
 const patchUpdateById = async (req, res) => {
-  if (!req.body) {
-    throw HttpError(400, "missing field favorite");
-  }
   const { _id: owner } = req.user;
   const { id } = req.params;
   const result = await Contact.findOneAndUpdate({ _id: id, owner }, req.body, {
