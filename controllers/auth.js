@@ -4,8 +4,12 @@ import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
+import path from "path";
+import fs from "fs/promises";
 
 const { SECRET_KEY } = process.env;
+const avatarDir = path.join("../", "public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -16,7 +20,12 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   res.status(201).json({
     name: newUser.name,
@@ -72,10 +81,20 @@ const patchUpdateSubscription = async (req, res) => {
   res.json(result);
 };
 
+const updateAvatar = async (req, res) => {
+  const { path: tmpDir, originalname } = req.file;
+  const resultUpload = path.join(avatarDir, originalname);
+  await fs.rename(tmpDir, resultUpload);
+  const avatarURL = path.join("avatars", originalname);
+  await User.findByIdAndUpdate(req.user._id, { avatarURL });
+  res.json({ avatarURL });
+};
+
 export default {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   patchUpdateSubscription: ctrlWrapper(patchUpdateSubscription),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
