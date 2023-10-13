@@ -7,9 +7,10 @@ import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "path";
 import fs from "fs/promises";
+import Jimp from "jimp";
 
 const { SECRET_KEY } = process.env;
-const avatarDir = path.join("../", "public", "avatars");
+const avatarDir = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -82,11 +83,19 @@ const patchUpdateSubscription = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  const { path: tmpDir, originalname } = req.file;
-  const resultUpload = path.join(avatarDir, originalname);
-  await fs.rename(tmpDir, resultUpload);
-  const avatarURL = path.join("avatars", originalname);
-  await User.findByIdAndUpdate(req.user._id, { avatarURL });
+  const { _id } = req.user;
+  const { path: tmpUpload, originalname } = req.file;
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarDir, fileName);
+  await fs.rename(tmpUpload, resultUpload);
+  const avatarURL = path.join("avatars", fileName);
+  Jimp.read(resultUpload, (err, lenna) => {
+    if (err) throw err.message;
+    lenna.resize(250, 250).write(resultUpload);
+  });
+
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
   res.json({ avatarURL });
 };
 
