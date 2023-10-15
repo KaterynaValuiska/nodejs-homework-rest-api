@@ -35,7 +35,6 @@ const register = async (req, res) => {
     subscription: newUser.subscription,
   });
 };
-
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -56,6 +55,10 @@ const login = async (req, res) => {
     user: { email: user.email, subscription: user.subscription },
   });
 };
+
+export function testLogin(token, user) {
+  login(token, user);
+}
 
 const getCurrent = async (req, res) => {
   const { email, name, subscription } = req.user;
@@ -83,20 +86,27 @@ const patchUpdateSubscription = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  const { _id } = req.user;
-  const { path: tmpUpload, originalname } = req.file;
-  const fileName = `${_id}_${originalname}`;
-  const resultUpload = path.join(avatarDir, fileName);
-  await fs.rename(tmpUpload, resultUpload);
-  const avatarURL = path.join("avatars", fileName);
-  Jimp.read(resultUpload, (err, lenna) => {
-    if (err) throw err.message;
-    lenna.resize(250, 250).write(resultUpload);
-  });
+  try {
+    const { _id } = req.user;
+    const { path: tmpUpload, originalname } = req.file;
+    const fileName = `${_id}_${originalname}`;
+    const resultUpload = path.join(avatarDir, fileName);
+    await fs.rename(tmpUpload, resultUpload);
 
-  await User.findByIdAndUpdate(_id, { avatarURL });
+    const avatarURL = path.join("avatars", fileName);
 
-  res.json({ avatarURL });
+    Jimp.read(resultUpload, (err, lenna) => {
+      if (err) throw err.message;
+      lenna.resize(250, 250).write(resultUpload);
+    });
+
+    await User.findByIdAndUpdate(_id, { avatarURL });
+
+    res.json({ avatarURL });
+  } catch (error) {
+    await fs.unlink(req.file.path);
+    throw error;
+  }
 };
 
 export default {
