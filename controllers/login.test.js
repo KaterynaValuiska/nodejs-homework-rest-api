@@ -1,16 +1,16 @@
-import { testLogin } from "./auth.js";
+import login from "./functions/login.js";
 
-function sum(a, b) {
-  return a + b;
-}
-
+// function sum(a, b) {
+//   return a + b;
+// }
+console.log(login);
 describe("test login function", () => {
-  test("adds 1 + 2 to equal 3", () => {
-    expect(sum(1, 2)).toBe(3);
-  });
+  //   test("adds 1 + 2 to equal 3", () => {
+  //     expect(sum(1, 2)).toBe(3);
+  //   });
 
   test("{} - true", () => {
-    const result = testLogin({});
+    const result = login({});
     expect(result).toBe(true);
   });
 });
