@@ -3,14 +3,13 @@ import { HttpError } from "../helpers/HttpError.js";
 import { ctrlWrapper } from "../helpers/ctrlWrapeer.js";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-// import jwt from "jsonwebtoken";
-import login from "./functions/login.js";
+import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "path";
 import fs from "fs/promises";
 import Jimp from "jimp";
 
-// const { SECRET_KEY } = process.env;
+const { SECRET_KEY } = process.env;
 const avatarDir = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
@@ -36,26 +35,26 @@ const register = async (req, res) => {
     subscription: newUser.subscription,
   });
 };
-// const login = async (req, res) => {
-//   const { email, password } = req.body;
-//   const user = await User.findOne({ email });
-//   if (!user) {
-//     throw HttpError(401, "Email or password invalid");
-//   }
-//   const passwordCompare = await bcrypt.compare(password, user.password);
-//   if (!passwordCompare) {
-//     throw HttpError(401, "Email or password invalid");
-//   }
-//   const payload = {
-//     id: user._id,
-//   };
-//   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
-//   await User.findByIdAndUpdate(user._id, { token });
-//   res.json({
-//     token,
-//     user: { email: user.email, subscription: user.subscription },
-//   });
-// };
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(401, "Email or password invalid");
+  }
+  const passwordCompare = await bcrypt.compare(password, user.password);
+  if (!passwordCompare) {
+    throw HttpError(401, "Email or password invalid");
+  }
+  const payload = {
+    id: user._id,
+  };
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  await User.findByIdAndUpdate(user._id, { token });
+  res.json({
+    token,
+    user: { email: user.email, subscription: user.subscription },
+  });
+};
 
 const getCurrent = async (req, res) => {
   const { email, name, subscription } = req.user;
