@@ -1,11 +1,11 @@
-import { HttpError } from "../helpers/HttpError.js";
+import { HttpError } from "../helpers/index.js";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.js";
 
 const { SECRET_KEY } = process.env;
 
-export const authenticate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   const { authorization = "" } = req.headers;
   const [bearer, token] = authorization.split(" ");
 
@@ -24,3 +24,5 @@ export const authenticate = async (req, res, next) => {
     next(HttpError(401));
   }
 };
+
+export default authenticate;

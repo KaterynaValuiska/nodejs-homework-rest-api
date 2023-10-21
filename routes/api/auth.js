@@ -1,9 +1,7 @@
 import express from "express";
-import { validateBody } from "../../middlewares/validateBody.js";
+import { validateBody, authenticate, upload } from "../../middlewares/index.js";
 import { schemas } from "../../models/user.js";
 import ctrl from "../../controllers/auth.js";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { upload } from "../../middlewares/upload.js";
 
 const authRouter = express.Router();
 
@@ -12,6 +10,15 @@ authRouter.post(
   validateBody(schemas.registerSchema),
   ctrl.register
 );
+
+authRouter.get("/verify/:verificationCode", ctrl.verifyEmail);
+
+authRouter.post(
+  "/verify",
+  validateBody(schemas.verifySchema),
+  ctrl.resentVarifyEmail
+);
+
 authRouter.post("/login", validateBody(schemas.loginSchema), ctrl.login);
 
 authRouter.get("/current", authenticate, ctrl.getCurrent);
