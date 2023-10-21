@@ -1,8 +1,4 @@
-import HttpError from "./HttpError.js";
-import { ctrlWrapper } from "./ctrlWrapeer.js";
-import { handleMongooseError } from "./handleMongooseError.js";
-export default {
-  HttpError,
-  ctrlWrapper,
-  handleMongooseError,
-};
+export { default as ctrlWrapper } from "./ctrlWrapeer.js";
+export { default as handleMongooseError } from "./handleMongooseError.js";
+export { default as sendMail } from "./sendMail.js";
+export { default as HttpError } from "./HttpError.js";

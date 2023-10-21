@@ -1,11 +1,4 @@
-import { isValidId } from "./isValidId.js";
-import { validateBody } from "./validateBody.js";
-import { authenticate } from "./authenticate.js";
-import { upload } from "./upload.js";
-
-export default {
-  isValidId,
-  validateBody,
-  authenticate,
-  upload,
-};
+export { default as isValidId } from "./isValidId.js";
+export { default as validateBody } from "./validateBody.js";
+export { default as authenticate } from "./authenticate.js";
+export { default as upload } from "./upload.js";

@@ -1,9 +1,11 @@
 import express from "express";
 import ctrl from "../../controllers/contacts.js";
-import { isValidId } from "../../middlewares/isValidId.js";
-import { validateBody } from "../../middlewares/validateBody.js";
+import {
+  isValidId,
+  validateBody,
+  authenticate,
+} from "../../middlewares/index.js";
 import { schemasJoi } from "../../models/contact.js";
-import { authenticate } from "../../middlewares/authenticate.js";
 
 const router = express.Router();
 
